@@ -1,6 +1,6 @@
 'use strict';
 
-let votingRounds = 25;
+let votingRounds = 5;
 let BusMallArray = [];
 
 let imgContainer = document.getElementById('container');
@@ -9,8 +9,10 @@ let imgTwo = document.getElementById('image-two');
 let imgThree = document.getElementById('image-three');
 
 
-let resultsList = document.getElementById('display-results');
-let resultsBtn = document.getElementById('show-results-btn');
+// let resultsList = document.getElementById('display-results');
+// let resultsBtn = document.getElementById('show-results-btn');
+
+let ctx = document.getElementById('myChart');
 
 function BusMall(itemName, fileExtension = 'jpg'){
   this.itemName = itemName;
@@ -90,22 +92,83 @@ function handleClick(event){
 
   if(votingRounds === 0){
     imgContainer.removeEventListener('click', handleClick);
+
+    // chart render
+    renderMallChart
+
   }
 
   renderImg();
 
 }
 
-function handleShowResults(){
-  if(votingRounds === 0){
-    for(let i = 0; i < BusMallArray.length; i++){
-      let li = document.createElement('li');
-      li.textContent = `${BusMallArray[i].itemName} was shown ${BusMallArray[i].views} times and clicked ${BusMallArray[i].clicks} times`;
-      resultsList.appendChild(li);
-    }
+function renderMallChart () {
+  let itemName = [];
+  let itemClicks = [];
+  let itemViews = [];
+
+  for(let i=0; i < BusMallArray.length; i++){
+    itemName.push(BusMallArray[i].itemName);
+    itemClicks.push(BusMallArray[i].clicks);
+    itemViews.push(BusMallArray[i].views);
 
   }
+
+
+// **** Canvas Ref ****
+
+let myChartObj = {
+  type: 'bar',
+  data: {
+    labels: itemName, // items names
+    datasets: [{
+      label: '# of Votes', // # votes and # views
+      data: itemClicks,
+      backgroundColor: [
+        'blue'
+      ],
+      borderColor: [
+        'blue'
+      ],
+      borderWidth: 1
+    },
+    {
+      label: '# of Views', // # votes and # views
+      data: itemViews, // the actual view or votes
+      backgroundColor: [
+        'black'
+      ],
+      borderColor: [
+        'black'
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+ 
+};
+
+new Chart(ctx, myChartObj);
+
 }
 
+
+// function handleShowResults(){
+//   if(votingRounds === 0){
+//     for(let i = 0; i < BusMallArray.length; i++){
+//       let li = document.createElement('li');
+//       li.textContent = `${BusMallArray[i].itemName} was shown ${BusMallArray[i].views} times and clicked ${BusMallArray[i].clicks} times`;
+//       resultsList.appendChild(li);
+//     }
+
+//   }
+// }
+
 imgContainer.addEventListener('click', handleClick);
-resultsBtn.addEventListener('click', handleShowResults);
+// resultsBtn.addEventListener('click', handleShowResults);
