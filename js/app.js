@@ -12,7 +12,7 @@ let imgThree = document.getElementById('image-three');
 // let resultsList = document.getElementById('display-results');
 // let resultsBtn = document.getElementById('show-results-btn');
 
-let ctx = document.getElementById('myChart');
+let ctx = document.getElementById('myChart').getContext('2d');
 
 function BusMall(itemName, fileExtension = 'jpg'){
   this.itemName = itemName;
@@ -55,13 +55,13 @@ function renderImg(){
   let busThreeIndex = getRandomIndex();
 
   while(busOneIndex === busTwoIndex){
-    TwoIndex = getRandomIndex();
+    busTwoIndex = getRandomIndex();
   }
   while(busOneIndex === busThreeIndex){
-    ThreeIndex = getRandomIndex();
+    busThreeIndex = getRandomIndex();
   }
   while(busTwoIndex === busThreeIndex){
-    ThreeIndex = getRandomIndex();
+    busThreeIndex = getRandomIndex();
   }
 
   imgOne.src = BusMallArray[busOneIndex].img;
@@ -94,7 +94,7 @@ function handleClick(event){
     imgContainer.removeEventListener('click', handleClick);
 
     // chart render
-    renderMallChart
+    renderMallChart();
 
   }
 
@@ -116,7 +116,7 @@ function renderMallChart () {
 
 
 // **** Canvas Ref ****
-
+console.log(itemName);
 let myChartObj = {
   type: 'bar',
   data: {
