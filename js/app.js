@@ -1,6 +1,6 @@
 'use strict';
 // ******* Global Variables *******
-let votingRounds = 5;
+let votingRounds = 25;
 let BusMallArray = [];
 
 // ****** DOM REFERENCES ******
@@ -19,6 +19,7 @@ let ctx = document.getElementById('myChart');
 // ****** Local Storage ******
 let retrievedProducts = localStorage.getItem('itemName');
 let parsedProducts = JSON.parse(retrievedProducts);
+console.log(parsedProducts)
 
 // ****** Constructor ******
 
@@ -31,42 +32,45 @@ function BusMall(itemName, fileExtension = 'jpg') {
   BusMallArray.push(this);
 }
 
+
+// ***** Retrieved Products *******
+
 if (retrievedProducts) {
 
   for (let i = 0; i < parsedProducts.length; i++) {
 
     if (parsedProducts[i].itemName === 'sweep') {
-      let reconstructedSweep = new BusMall (parsedProducts[i].itemName, 'png');
+      let reconstructedSweep = new BusMall(parsedProducts[i].itemName, 'png');
       reconstructedSweep.clicks = parsedProducts[i].clicks;
       reconstructedSweep.views = parsedProducts[i].views;
-    } 
-    else { let reconstructedProduct = new BusMall (parsedProducts[i].itemName);
+    } else {
+      let reconstructedProduct = new BusMall(parsedProducts[i].itemName);
       reconstructedProduct.clicks = parsedProducts[i].clicks;
       reconstructedProduct.views = parsedProducts[i].views;
-
     }
   }
-} 
+} else {
+  new BusMall('sweep', 'png');
+  new BusMall('bag');
+  new BusMall('banana');
+  new BusMall('bathroom');
+  new BusMall('boots');
+  new BusMall('breakfast');
+  new BusMall('bubblegum');
+  new BusMall('chair');
+  new BusMall('cthulhu');
+  new BusMall('dog-duck');
+  new BusMall('dragon');
+  new BusMall('pen');
+  new BusMall('pet-sweep');
+  new BusMall('scissors');
+  new BusMall('shark');
+  new BusMall('tauntaun');
+  new BusMall('unicorn');
+  new BusMall('water-can');
+  new BusMall('wine-glass');
 
-new BusMall('sweep', 'png');
-new BusMall('bag');
-new BusMall('banana');
-new BusMall('bathroom');
-new BusMall('boots');
-new BusMall('breakfast');
-new BusMall('bubblegum');
-new BusMall('chair');
-new BusMall('cthulhu');
-new BusMall('dog-duck');
-new BusMall('dragon');
-new BusMall('pen');
-new BusMall('pet-sweep');
-new BusMall('scissors');
-new BusMall('shark');
-new BusMall('tauntaun');
-new BusMall('unicorn');
-new BusMall('water-can');
-new BusMall('wine-glass');
+}
 
 function getRandomIndex() {
 
@@ -116,6 +120,7 @@ function handleClick(event) {
       BusMallArray[i].clicks++;
     }
   }
+  renderImg();
 
   votingRounds--;
 
@@ -125,10 +130,10 @@ function handleClick(event) {
     let stringifiedProducts = JSON.stringify(BusMallArray);
 
     localStorage.setItem('itemName', stringifiedProducts);
+    // chart render
+    renderMallChart();
   }
 
-  // chart render
-  renderMallChart();
 }
 
 function renderMallChart() {
