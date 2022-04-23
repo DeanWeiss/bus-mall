@@ -1,8 +1,9 @@
 'use strict';
-
+// ******* Global Variables *******
 let votingRounds = 5;
 let BusMallArray = [];
 
+// ****** DOM REFERENCES ******
 let imgContainer = document.getElementById('container');
 let imgOne = document.getElementById('image-one');
 let imgTwo = document.getElementById('image-two');
@@ -12,9 +13,16 @@ let imgThree = document.getElementById('image-three');
 // let resultsList = document.getElementById('display-results');
 // let resultsBtn = document.getElementById('show-results-btn');
 
-let ctx = document.getElementById('myChart').getContext('2d');
+// ****** Canvas Ref ******
+let ctx = document.getElementById('myChart');
 
-function BusMall(itemName, fileExtension = 'jpg'){
+// ****** Local Storage ******
+let retrievedProducts = localStorage.getItem('itemName');
+let parsedProducts = JSON.parse(retrievedProducts);
+
+// ****** Constructor ******
+
+function BusMall(itemName, fileExtension = 'jpg') {
   this.itemName = itemName;
   this.img = `img/${itemName}.${fileExtension}`;
   this.clicks = 0;
@@ -22,6 +30,23 @@ function BusMall(itemName, fileExtension = 'jpg'){
 
   BusMallArray.push(this);
 }
+
+if (retrievedProducts) {
+
+  for (let i = 0; i < parsedProducts.length; i++) {
+
+    if (parsedProducts[i].itemName === 'sweep') {
+      let reconstructedSweep = new BusMall (parsedProducts[i].itemName, 'png');
+      reconstructedSweep.clicks = parsedProducts[i].clicks;
+      reconstructedSweep.views = parsedProducts[i].views;
+    } 
+    else { let reconstructedProduct = new BusMall (parsedProducts[i].itemName);
+      reconstructedProduct.clicks = parsedProducts[i].clicks;
+      reconstructedProduct.views = parsedProducts[i].views;
+
+    }
+  }
+} 
 
 new BusMall('sweep', 'png');
 new BusMall('bag');
@@ -43,26 +68,30 @@ new BusMall('unicorn');
 new BusMall('water-can');
 new BusMall('wine-glass');
 
-function getRandomIndex(){
+function getRandomIndex() {
 
-  return Math.floor(Math.random()*BusMallArray.length);
+  return Math.floor(Math.random() * BusMallArray.length);
 }
 
-function renderImg(){
+let indexArray = [];
 
-  let busOneIndex = getRandomIndex();
-  let busTwoIndex = getRandomIndex();
-  let busThreeIndex = getRandomIndex();
+function renderImg() {
 
-  while(busOneIndex === busTwoIndex){
-    busTwoIndex = getRandomIndex();
+  // ***** Make sure each image is different ******
+  while (indexArray.length < 6) {
+    let randomNumber = getRandomIndex();
+    if (!indexArray.includes(randomNumber)) {
+      indexArray.push(randomNumber);
+    }
   }
-  while(busOneIndex === busThreeIndex){
-    busThreeIndex = getRandomIndex();
-  }
-  while(busTwoIndex === busThreeIndex){
-    busThreeIndex = getRandomIndex();
-  }
+
+  console.log(indexArray);
+
+  // ****** Get random index for each image ******
+  let busOneIndex = indexArray.shift();
+  let busTwoIndex = indexArray.shift();
+  let busThreeIndex = indexArray.shift();
+
 
   imgOne.src = BusMallArray[busOneIndex].img;
   imgOne.alt = BusMallArray[busOneIndex].itemName;
@@ -79,35 +108,35 @@ function renderImg(){
 
 renderImg();
 
-function handleClick(event){
+function handleClick(event) {
   let imgClicked = event.target.alt;
 
-  for(let i = 0; i < BusMallArray.length; i++){
-    if(imgClicked === BusMallArray[i].itemName){
+  for (let i = 0; i < BusMallArray.length; i++) {
+    if (imgClicked === BusMallArray[i].itemName) {
       BusMallArray[i].clicks++;
     }
   }
 
   votingRounds--;
 
-  if(votingRounds === 0){
+  if (votingRounds === 0) {
     imgContainer.removeEventListener('click', handleClick);
 
-    // chart render
-    renderMallChart();
+    let stringifiedProducts = JSON.stringify(BusMallArray);
 
+    localStorage.setItem('itemName', stringifiedProducts);
   }
 
-  renderImg();
-
+  // chart render
+  renderMallChart();
 }
 
-function renderMallChart () {
+function renderMallChart() {
   let itemName = [];
   let itemClicks = [];
   let itemViews = [];
 
-  for(let i=0; i < BusMallArray.length; i++){
+  for (let i = 0; i < BusMallArray.length; i++) {
     itemName.push(BusMallArray[i].itemName);
     itemClicks.push(BusMallArray[i].clicks);
     itemViews.push(BusMallArray[i].views);
@@ -115,46 +144,46 @@ function renderMallChart () {
   }
 
 
-// **** Canvas Ref ****
-console.log(itemName);
-let myChartObj = {
-  type: 'bar',
-  data: {
-    labels: itemName, // items names
-    datasets: [{
-      label: '# of Votes', // # votes and # views
-      data: itemClicks,
-      backgroundColor: [
-        'blue'
-      ],
-      borderColor: [
-        'blue'
-      ],
-      borderWidth: 1
+  // **** Canvas Ref ****
+  console.log(itemName);
+  let myChartObj = {
+    type: 'bar',
+    data: {
+      labels: itemName, // items names
+      datasets: [{
+        label: '# of Votes', // # votes and # views
+        data: itemClicks,
+        backgroundColor: [
+          'blue'
+        ],
+        borderColor: [
+          'blue'
+        ],
+        borderWidth: 1
+      },
+      {
+        label: '# of Views', // # votes and # views
+        data: itemViews, // the actual view or votes
+        backgroundColor: [
+          'black'
+        ],
+        borderColor: [
+          'black'
+        ],
+        borderWidth: 1
+      }]
     },
-    {
-      label: '# of Views', // # votes and # views
-      data: itemViews, // the actual view or votes
-      backgroundColor: [
-        'black'
-      ],
-      borderColor: [
-        'black'
-      ],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
     }
-  }
- 
-};
 
-new Chart(ctx, myChartObj);
+  };
+
+  new Chart(ctx, myChartObj);
 
 }
 
